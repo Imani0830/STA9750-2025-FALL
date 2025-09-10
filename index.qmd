@@ -1,4 +1,41 @@
 ---
 title: Imani STA9750 
 ---
-My name is Imani. I'm from New Orleans, La. I moved to upstate new york when I joined the military. I obtained my undergrad at CUNY York College and now I will obtain my graduate degree at Baruch - Zicklin School of Business in Business Analytics. I love to travel and try new foods.
+My name is Imani. I'm from New Orleans, La. I moved to upstate New York when I joined the military. I obtained my undergraduate degree at CUNY York College and now I will obtain my graduate degree at Baruch - Zicklin School of Business in Business Analytics. I love to travel and try new foods.
+```{r}
+#| include: false
+1+1
+```
+--------------
+Last Updated: `r format(Sys.time(), "%A %m %d, %Y at %H:%M%p")`
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+if(!require("leaflet")){
+    options(repos=c(CRAN="https://cloud.r-project.org"))
+    install.packages("leaflet")
+    stopifnot(require("leaflet"))
+}
+
+baruch_longitude <- -73.98333
+baruch_latitude  <- +40.75028
+
+leaflet() |>
+  addTiles() |>
+  setView(baruch_longitude, baruch_latitude, zoom=17) |>
+  addPopups(baruch_longitude, baruch_latitude, 
+            "I am a Master's student at <b>Baruch College</b>!")
+```
+#!/usr/bin/env Rscript
+if(!require("quarto")){
+    install.packages("quarto")
+}
+library(quarto)
+if(!quarto::quarto_binary_sitrep()){
+    stop("Something is wrong with your quarto installation.")
+}
+quarto::quarto_render(".")
+system("git add docs/*")
+if(!any(grepl("rstudio", search()))){q("no")}
