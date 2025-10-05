@@ -1,6 +1,33 @@
 ---
-title: "mp01.qmd"
+title: "Streaming to the Top: How Netflix Originals Conquered"
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
 ---
+
+## Summary
+As part of Netflix’s ongoing investment in high quality, globally appealing content this report provides a data driven analysis of the most successful shows and films from our Top 10 rankings. 
+
+Using publicly available Netflix Top 10 data, it has been examined for  standout titles that reached the #1 spot after debuting lower in the rankings, charted in the most countries during their first week, accumulated the highest global viewership hours,had record setting runs in individual country Top 10 lists.
+
+These findings support upcoming Public Relations campaigns by quantifying recent content successes, reinforcing Netflix’s commitment to accessible, mass market entertainment with global impact.
+
+## Table of Contents
+
+1. [Steps Taken:Data Acquisition](#steps-taken-data-acquisition)
+2. [Analyzing the Data: Key Questions and Insights](#analyzing-the-data-key-questions-and-insights)
+3. [Press Release 1: Upcoming Season of *Stranger Things*](#press-release-1-upcoming-season-of-stranger-things)
+4. [Press Release 2: Commercial Success in India](#press-release-2-commercial-success-in-india)
+5. [Press Release 3: Tyler Perry’s Netflix Partnership Sparks New Era of Subscriber Growth](#press-release-3-tyler-perrys-netflix-partnership-sparks-new-era-of-subscriber-growrth)
+
+
+## Steps Taken: Data Acquisition
+To get our data, we performed some steps: 
+
+
+GLOBAL TOP 10 and COUNTRY TOP 10 files:
+
 ```{r}
 if(!dir.exists(file.path("data", "mp01"))){
     dir.create(file.path("data", "mp01"), showWarnings=FALSE, recursive=TRUE)
@@ -20,58 +47,30 @@ if(!file.exists(COUNTRY_TOP_10_FILENAME)){
                   destfile=COUNTRY_TOP_10_FILENAME)
 }
 ```
+
 ```{r}
 if(!require("tidyverse")) install.packages("tidyverse")
 library(readr)
 library(dplyr)
+library(DT)
 
 GLOBAL_TOP_10 <- read_tsv(GLOBAL_TOP_10_FILENAME)
 ```
-```{r}
-str(GLOBAL_TOP_10)
-```
+
+A glimpse of the GLOBAL TOP 10 data: 
 
 ```{r}
 glimpse(GLOBAL_TOP_10)
 ```
 
+To update rows with no data accessible to show "NA": 
+
 ```{r}
 GLOBAL_TOP_10 <- GLOBAL_TOP_10 |>
-    mutate(season_title = if_else(season_title=="N/A", NA, season_title))
+    mutate(season_title = if_else(season_title == "N/A", NA, season_title))
 ```
 
- 
-```{r}
-if(!require("tidyverse")) install.packages("tidyverse")
-library(readr)
-library(dplyr)
-
-COUNTRY_TOP_10 <- read_tsv(COUNTRY_TOP_10_FILENAME)
-```
-  
-```{r}
-str(COUNTRY_TOP_10)
-```
-  
-```{r}
-glimpse(COUNTRY_TOP_10)
-```
-  
-```{r}
-COUNTRY_TOP_10 <- COUNTRY_TOP_10 |>
-    mutate(season_title = if_else(season_title=="N/A", NA, season_title))
-```
-  
-```{r}
-library(DT)
-GLOBAL_TOP_10 |> 
-    head(n=20) |>
-    datatable(options=list(searching=FALSE, info=FALSE))
-```
-  
-```{r}
-install.packages("DT") 
-```
+To address some minor format errors
 
 ```{r}
 library(stringr)
@@ -81,23 +80,6 @@ format_titles <- function(df){
 }
 
 GLOBAL_TOP_10 |> 
-    format_titles() |>
-    head(n=20) |>
-    datatable(options=list(searching=FALSE, info=FALSE)) |>
-    formatRound(c('Weekly Hours Viewed', 'Weekly Views'))
-```
-  
-```{r}
-GLOBAL_TOP_10 |> 
-    select(-season_title) |>
-    format_titles() |>
-    head(n=20) |>
-    datatable(options=list(searching=FALSE, info=FALSE)) |>
-    formatRound(c('Weekly Hours Viewed', 'Weekly Views'))
-```
-  
-```{r}
-GLOBAL_TOP_10 |> 
     mutate(`runtime_(minutes)` = round(60 * runtime)) |>
     select(-season_title, 
            -runtime) |>
@@ -106,14 +88,446 @@ GLOBAL_TOP_10 |>
     datatable(options=list(searching=FALSE, info=FALSE)) |>
     formatRound(c('Weekly Hours Viewed', 'Weekly Views'))
 ```
+
+COUNTRY TOP 10 data: 
+
+```{r}
+if(!require("tidyverse")) install.packages("tidyverse")
+library(readr)
+library(dplyr)
+
+COUNTRY_TOP_10 <- read_tsv(COUNTRY_TOP_10_FILENAME)
+```
+
+A glimpse of the COUNTRY TOP 10 data: 
+
+```{r}
+glimpse(COUNTRY_TOP_10)
+```
+
+To update rows with no data accessible to show "NA": 
+
+```{r}
+COUNTRY_TOP_10 <- COUNTRY_TOP_10 |>
+    mutate(season_title = if_else(season_title == "N/A", NA, season_title))
+```
+
+
+
+## Analyzing the Data: Key Questions and Insights
+
+### Question 1
+
+How many different countries does Netflix operate in?
   
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+COUNTRY_TOP_10 |>
+  distinct(country_name)
+```
+
+Netflix operates in `r n_distinct(COUNTRY_TOP_10$country_name)` countries.
 
 
+### Question 2 
+
+Which non-English-language film has spent the most cumulative weeks in the global top 10? How many weeks did it spend?
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+GLOBAL_TOP_10 |>
+  select(show_title, weekly_rank, cumulative_weeks_in_top_10, category) |>
+  filter(category == "Films (Non-English)") |>
+  slice_max(cumulative_weeks_in_top_10)
+```
+ 
+The non-English-language film that spent the most cumulative weeks in the global Top 10 is `r "All Quiet on the Western Front"`, with a total of `r 23` weeks.
+
+## Question 3
+
+What is the longest film (English or non-English) to have ever appeared in the Netflix global Top 10? How long is it in minutes?
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+GLOBAL_TOP_10 |>
+  select(show_title, weekly_rank, runtime) |>
+  slice_max(runtime)
+```
+
+*Until You Burn* is the longest film to have appeared in the global Top 10. Its runtime is `r 47.6` minutes.
 
 
+## Question 4 
 
+For each of the four categories, what program has the most total hours of global viewership?
 
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
 
-
+GLOBAL_TOP_10 |>
+  distinct(category, weekly_hours_viewed) |>
+  select(category, weekly_hours_viewed) |>
+  slice_max(weekly_hours_viewed)
+```
   
+The program category `r "TV (Non-English)"` has the most total hours of global viewership.
+
+## Question 5
+
+Which TV show had the longest run in a country’s Top 10? How long was this run and in what country did it occur?
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+COUNTRY_TOP_10 |>
+  select(show_title, category, cumulative_weeks_in_top_10, country_name) |>
+  filter(category == "TV") |>
+  slice_max(cumulative_weeks_in_top_10)
+```
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+COUNTRY_TOP_10|>
+  distinct(category)
+```
+
+The TV show `r "Money Heist"` had the longest run in a country’s Top 10. It spent `r 127` weeks in the Top 10 in `r "Pakistan"`.
+
+## Question 6
+
+Netflix provides over 200 weeks of service history for all but one country in our data set. Which country is this and when did Netflix cease operations in that country?
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+COUNTRY_TOP_10 |>
+  group_by(country_name) |>
+  summarise(weeks_of_data = n_distinct(week), latest_date = max(week, na.rm = TRUE), .groups = 'drop') |>
+  arrange(weeks_of_data)
+```
+
+Netflix ceased operations in `r "Russia"`. The last date it serviced the country was `r "2022-02-27"`, with only `r 35` weeks of data reported.
+
+## Question 7
+
+What is the total viewership of the TV show Squid Game? Note that there are three seasons total and we are looking for the total number of hours watched across all seasons.
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+GLOBAL_TOP_10 |>
+  filter(show_title == "Squid Game") |>
+  group_by(show_title) |>
+  summarise(sum(weekly_views, na.rm = TRUE))
+```
+
+The total viewership of the TV show *Squid Game* is `r 396900000`.
+
+## Question 8 
+
+The movie Red Notice has a runtime of 1 hour and 58 minutes. Approximately how many views did it receive in 2021? Note that Netflix does not provide the weekly_views values that far back in the past, but you can compute it yourself using the total view time and the runtime.
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+red_notice_runtime_hours <- 118 / 60 
+
+GLOBAL_TOP_10 |>
+  filter(show_title == "Red Notice",
+         year(week) == 2021) |>
+  summarise(
+    total_hours = sum(weekly_hours_viewed, na.rm = TRUE),
+    estimated_views = total_hours / red_notice_runtime_hours
+  )
+```
+
+The movie *Red Notice* had approximately `r 201732203` total views in 2021.
+
+## Question 9 
+
+How many Films reached Number 1 in the US but did not originally debut there? That is, find films that first appeared on the Top 10 chart at, e.g., Number 4 but then became more popular and eventually hit Number 1? What is the most recent film to pull this off?
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+us_films <- COUNTRY_TOP_10 |>
+  filter(country_name == "United States", category == "Films")
+
+us_films |>
+  group_by(show_title) |>
+  summarise(
+    debut_week = min(week),
+    debut_rank = weekly_rank[which.min(week)][1],
+    hit_number_1 = any(weekly_rank == 1),
+    first_week_at_1 = if (any(weekly_rank == 1)) min(week[weekly_rank == 1]) else as.Date(NA),
+    .groups = "drop"
+  ) |>
+  filter(debut_rank > 1, hit_number_1 == TRUE) |>
+  arrange(desc(first_week_at_1)) |>
+  slice(1) 
+```
+
+`r 45` films reached number 1 in the U.S. but did not originally debut there. *Unknown Number: The High* is the most recent film to have pulled this off. It debuted at number `r 4` during the week of `r "2025-08-31"`, and first reached number 1 in the week of `r "2025-09-07"`.
+
+## Question 10
+
+Which TV show/season hit the top 10 in the most countries in its debut week? In how many countries did it chart?
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+library(dplyr)
+
+COUNTRY_TOP_10 |>
+  filter(category == "TV") |>
   
+  group_by(show_title, season_title) |>
+  mutate(debut_week = min(week)) |>
+  ungroup() |>
+    filter(week == debut_week) |>
+    group_by(show_title, season_title, debut_week) |>
+    summarise(
+      countries_in_debut_week = n_distinct(country_name),
+      .groups = "drop"
+    ) |>
+    arrange(desc(countries_in_debut_week)) |>
+    slice(1)
+```
+
+In its debut week of `r "2021-12-26"`, *Emily in Paris, Season 2* hit the Top 10 in the most countries — `r 94` countries.
+
+
+## Press Release 1: Upcoming Season of Stranger Things
+
+## Stranger Things Hasn’t Left the Upside Down Netflix’s Global Sensation Returns for One Final Season
+
+Sunday, October 5, 2025 
+
+Stranger Things
+
+NETFLIX
+
+Debuted in 2016 and preparing for the final season. Viewers are waiting! This show has been a very popular show throughout its 4 seasons.
+
+- Stranger Things Seasons 1-4, has a current global total viewership of 2967980000 total hours/ 2967.98. 
+
+- Over its course of streaming, Stranger Things remained in the Top 10, estimate of ~19-20 times. 
+
+- Comparing to to other Popular shows (for example, "Wednesday" TV series), that debuted in 2022, have not been able to keep as consistent with streaming, number of seasons, and ranking in the the Top 10.
+
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+ 
+GLOBAL_TOP_10 |>
+select(show_title, cumulative_weeks_in_top_10, weekly_hours_viewed, season_title, runtime) |>
+  filter(show_title == "Stranger Things")
+```
+
+Total Hours Viewed
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+GLOBAL_TOP_10 |>
+  filter(str_detect(show_title, "Stranger Things")) |>
+  summarise(total_hours = sum(weekly_hours_viewed, na.rm = TRUE)) |>
+  pull(total_hours)
+```
+
+Total weeks in Top 10 (globallly)
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+GLOBAL_TOP_10 |>
+  filter(str_detect(show_title, "Stranger Things")) |>
+  summarise(max_weeks = max(cumulative_weeks_in_top_10)) |>
+  pull(max_weeks)
+```
+
+Number of countries streamed in
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+COUNTRY_TOP_10 |>
+  filter(str_detect(show_title, "Stranger Things")) |>
+  summarise(countries = n_distinct(country_name)) |>
+  pull(countries)
+```
+
+
+
+## Press Release 2: Commercial Success in India
+
+## Streaming the Subcontinent: Netflix Surges Ahead in India’s Entertainment Market
+
+Sunday, October 5, 2025 
+
+NETFLIX 
+
+Popular Films - India
+
+Netflix’s continued investment in Hindi-language content is paying off with a growing library of homegrown films finding enormous success in India’s Top 10 rankings, even without global exposure. 
+
+- Recent data reveals that over 20 films charted consistently in India but, never appeared in the U.S. Top 10, underscoring the unique tastes of Indian viewers and the platform’s deepening cultural resonance in the region.
+
+- Titles like "Haseen Dillruba", The Great Indian Kapil Show, The Railway Men- Untold Story of Bhopal 1984 dominated India’s weekly Top 10 for 8 or more weeks, often reaching the #1 spot and sustaining high ranks throughout their run. 
+
+- These films didn’t chart as much internationally, yet drew enough local attention to suggest strong user engagement, potentially representing millions of Indian subscribers actively watching regional content.
+
+- With India now the most populous country in the world, Netflix’s focus on high quality Hindi films positions it for significant subscriber growth. 
+The data driven success of these titles confirms that localized storytelling is not just working, it’s winning.
+
+
+Hindi Language Films
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+us_titles <- COUNTRY_TOP_10 |>
+  filter(country_name == "United States") |>
+  distinct(show_title)
+
+india_titles <- COUNTRY_TOP_10 |>
+  filter(country_name == "India") |>
+  distinct(show_title)
+
+india_only_titles <- india_titles |>
+  filter(!(show_title %in% us_titles$show_title))
+
+india_only_titles
+```
+
+Weeks in the Top 10 Not charted in the U.S. but, other countries
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+COUNTRY_TOP_10 |>
+  filter(country_name == "India") |>
+  group_by(show_title) |>
+  summarise(
+    weeks_in_top_10 = n_distinct(week),
+    best_rank = min(weekly_rank, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  filter(!(show_title %in% us_titles$show_title)) |>
+  arrange(desc(weeks_in_top_10), best_rank)
+```
+
+To verify it was not charted Top 10 in the U.S. (pull titles from the list and filter)
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+COUNTRY_TOP_10 |>
+  select(country_name, show_title, weekly_rank, cumulative_weeks_in_top_10) |>
+  filter(show_title == "The Railway Men - The Untold Story Of Bhopal 1984") |>
+  filter(country_name == "United States")
+```
+
+
+
+## Press Release 3: Tyler Perry’s Netflix Partnership Sparks New Era of Subscriber Growth
+
+## Beauty in Black, Binge in Red: Netflix and Tyler Perry’s Hit Series Drives New Viewership Surge
+
+
+Sunday, October 5, 2025 
+
+NETFLIX 
+
+Beauty in Black
+
+Netflix's exclusive partnership with acclaimed producer and filmmaker Tyler Perry marks a bold step toward content that connects deeply with devoted audiences. 
+
+- The debut of Perry’s Beauty in Black (10/2024), a Netflix-only series has not only captivated viewers, but also opened the door to a broader wave of engagement with the platform’s growing catalog of original content.
+
+- Perry brings with him a massive and loyal fanbase, many of whom are subscribing to Netflix specifically to watch Beauty in Black. 
+
+- This surge of interest is already translating into higher viewership for other Netflix exclusive series, as new subscribers explore content beyond their original reason for joining. 
+
+- Early indicators suggest this strategy is paying off with measurable increases in viewership hours, retention rates, and cross-title discovery among new members.
+
+- This collaboration is more than just a content deal, it’s a signal of Netflix’s commitment to investing in culturally resonant, creator-led storytelling. 
+
+- As Beauty in Black gains momentum, Netflix strengthens its position as the go-to destination for high-quality, exclusive content that moves, inspires, and retains global audiences.
+
+
+Total Viewership and Ranking - Globally 
+
+```{r}
+#| echo: true
+#| message: false
+#| results: hide
+
+GLOBAL_TOP_10 |>
+  filter(show_title == "Beauty in Black") |>
+  summarise(
+    total_hours_viewed = sum(weekly_hours_viewed, na.rm = TRUE),
+    total_weeks_in_top10 = n_distinct(week)
+  )
+```
+
+
+
+
+Imani Cooper 
+
+Data Analyst, PR Team 
+
+Phone: 305-256-2876
+
+Email: pr@netflix.com
+
+Netflix, Inc 
+
+
+
+## END OF PRESS RELEASE
+
+
+
+
