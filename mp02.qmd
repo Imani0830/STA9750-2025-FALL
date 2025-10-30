@@ -773,18 +773,18 @@ ggplot(employment_joined, aes(x = total_employment, y = health_employment, color
 
 Recent data from 2020–2023 show that high rent burdens are contributing to population stagnation or decline in many areas. Rising monthly rent are causing a reduction in family sizes, relocation to more affordable areas, or delay moving to higher cost cities, which can negatively impact economic growth. As stated, our plan focused on increasing housing supply is projected to reverse these trends, supporting population and housing growth 
 
-To identify cities where federal YIMBY incentives would have the greatest impact, we recommend two straightforward metrics:
+To identify cities where YIMBY incentives would have the greatest impact, we recommend two straightforward metrics:
 
 Rent Burden – This measures the share of household income spent on housing. Cities with high rent burden are experiencing affordability stress and would benefit most from policies that increase housing supply.
 
-Housing Growth – This measures the pace of new housing development, both relative to the existing population and relative to population growth over a five-year window. Cities with low housing growth relative to population demand are constrained by zoning, permitting, or construction bottlenecks.
+Housing Growth – This measures the pace of new housing development, both relative to the existing population and relative to population growth over a five year window. Cities with low housing growth relative to population demand are constrained by zoning, permitting, or construction.
 
-By combining these metrics, the government can classify cities as “high-YIMBY” candidates areas with high rent pressures but, strong potential for housing expansion. Federal funding can be targeted to cities meeting these criteria, enabling local governments to implement more permissive zoning, streamline permitting, and push developers to build housing that meets local needs.
+By combining these metrics, the government can classify cities as “YIMBY” candidates areas with high rent pressures but, strong potential for housing expansion. Federal funding can be targeted to cities meeting these criteria, enabling local governments to implement more permissive zoning, permitting, and push developers to build housing that meets local needs.
 
 
 ### Graphs
 
-Average houshold size over time (all CBSAs): 
+Average household size over time (all CBSAs): 
 
 ```{r}
 household_size <- HOUSEHOLDS |>
