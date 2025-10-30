@@ -12,7 +12,7 @@ execute:
 ## Table of Contents
 
 1. [Task 1: Data Import](#task-1-data-import)
-2. [Task 2: Data Analysing](#data-analysing)
+2. [Task 2: Data Analysis](#data-analysis)
 3. [Policy Brief: Increase Housing Supply](#policy-brief-increase-housing-supply)
 
 
@@ -279,7 +279,7 @@ glimpse(RENT)
 glimpse(WAGES)
 ```
 
-### Data Analysing:
+### Data Analysis:
 
 ## Question 1
 
