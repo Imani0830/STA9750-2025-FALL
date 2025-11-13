@@ -57,35 +57,6 @@ nycc_districts <- st_transform(nycc_districts, crs = "WGS84")
 st_crs(nycc_districts)
 ```
 
-
-
-retry unzip: 
-
-```{r}
-library(sf)
-library(dplyr)
-
-zip_path <- "~/Downloads/nycc_25c.zip"
-unzip_dir <- "data/mp03/nycc_25c"
-
-# Ensure directory exists
-if(!dir.exists(unzip_dir)) dir.create(unzip_dir, recursive = TRUE)
-
-# Unzip the file only if shapefile does not exist
-if(length(list.files(unzip_dir, pattern = "\\.shp$", recursive = TRUE)) == 0){
-  unzip(zip_path, exdir = unzip_dir)
-}
-
-# Find shapefile
-shp_file <- list.files(unzip_dir, pattern = "\\.shp$", full.names = TRUE, recursive = TRUE)
-print(shp_file) # sanity check
-
-# Read shapefile
-nycc_districts <- st_read(shp_file)
-nycc_districts <- st_transform(nycc_districts, crs = "WGS84")
-
-```
-
 NYC Forestry Tree Points Data- API request:
 
 ```{r}
@@ -224,7 +195,7 @@ trees_per_district %>%
   slice(1)
 ```
 
-`r paste0("District 51 has the most trees, number of trees are ", 70927, ".")`
+`r paste0("District 50 has the most trees, number of trees are ", 2356, ".")`
 
 
 ## Question 2
@@ -254,7 +225,7 @@ trees_density %>%
   slice(1)
 ```
 
-`r paste0("Council District 7 has the highest density of trees. With a tree count of ", 15537, " and density of ", 0.000282, ".")`
+`r paste0("Council District 50 has the highest density of trees. With a tree count of ", 2356, " and density of ", 3.541, ".")`
 
 ## Question 3
 
@@ -278,8 +249,8 @@ dead_tree_fraction %>%
   slice(1)
 ```
 
-`r paste0("District 32 has the highest fraction of dead trees. Total tree amount is ", 30261, 
-         ", with ", 4304, " dead. That gives a fraction of ", 0.142, " dead.")`
+`r paste0("District 15 has the highest fraction of dead trees. Total tree amount is ", 20, 
+         ", with ", 10, " dead. That gives a fraction of ", 0.50, " dead.")`
 
 
 ## Question 4
@@ -338,7 +309,7 @@ closest_tree_species <- closest_tree$genusspecies
 closest_tree_species
 ```
 
-`r "The closest tree to Baruch is the Ginkgo biloba - maidenhair tree."`
+`r "The closest tree to Baruch is the Pyrus Calleryana - callery pear."`
 
 ## Task 5: Government Project Design
 
@@ -382,7 +353,7 @@ ggplot() +
 ```
 
 Compared to neighboring districts, District 24 has one of the highest concentrations of aging trees requiring maintenance, as well as significant opportunities to increase tree density. 
-Quantitative comparison with Districts 9, 12, and 51 shows that our district has lower tree density per square meter but higher public foot traffic and community engagement potential, making it an ideal candidate for expanded tree initiatives (insert bar or dot plot here showing comparison).
+Quantitative comparison with Districts 9, 12, and 51 shows that our district has lower tree density per square meter but higher public foot traffic and community engagement potential, making it an ideal candidate for expanded tree initiatives.
 
 Tree Density Comparison Across Districts 9, 12, 24, and 51: 
 
@@ -485,7 +456,7 @@ With funding support, this project can serve as a scalable model for other distr
 
 
 
-## Extra Credit 1
+## Extra Credit 1: Improved Tree Map Visualizations
 
 ```{r}
 library(leaflet)
