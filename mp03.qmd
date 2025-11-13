@@ -1,0 +1,526 @@
+---
+title: "District 24 Rebuild"
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+execute:
+  warning: false   
+  message: false 
+---
+
+
+## Task 1: Data Import
+To get out data, we performed some steps:
+
+NYC 51 City Council Districts:
+
+```{r}
+library(sf)
+library(dplyr)
+```
+
+```{r}
+zip_path <- "~/Downloads/nycc_25c.zip"
+unzip_dir <- "data/mp03/nycc_25c"
+```
+
+```{r}
+if(!dir.exists(unzip_dir)) dir.create(unzip_dir, recursive = TRUE)
+```
+
+```{r}
+unzip(zip_path, exdir = unzip_dir)
+```
+
+
+
+```{r}
+shp_file <- list.files(unzip_dir, pattern = "\\.shp$", full.names = TRUE)
+```
+
+```{r}
+nycc_districts <- st_read("data/mp03/nycc_25c/nycc_25c/nycc.shp")
+```
+
+```{r}
+list.files("data/mp03/nycc_25c", full.names = TRUE, recursive = TRUE)
+```
+
+Transform to WGS 84:
+
+```{r}
+nycc_districts <- st_transform(nycc_districts, crs = "WGS84")
+```
+
+```{r}
+st_crs(nycc_districts)
+```
+
+
+
+retry unzip: 
+
+```{r}
+library(sf)
+library(dplyr)
+
+zip_path <- "~/Downloads/nycc_25c.zip"
+unzip_dir <- "data/mp03/nycc_25c"
+
+# Ensure directory exists
+if(!dir.exists(unzip_dir)) dir.create(unzip_dir, recursive = TRUE)
+
+# Unzip the file only if shapefile does not exist
+if(length(list.files(unzip_dir, pattern = "\\.shp$", recursive = TRUE)) == 0){
+  unzip(zip_path, exdir = unzip_dir)
+}
+
+# Find shapefile
+shp_file <- list.files(unzip_dir, pattern = "\\.shp$", full.names = TRUE, recursive = TRUE)
+print(shp_file) # sanity check
+
+# Read shapefile
+nycc_districts <- st_read(shp_file)
+nycc_districts <- st_transform(nycc_districts, crs = "WGS84")
+
+```
+
+NYC Forestry Tree Points Data- API request:
+
+```{r}
+library(httr2)
+library(sf)
+library(dplyr)
+library(purrr)
+```
+
+```{r}
+base_url <- "https://data.cityofnewyork.us/resource/hn5i-inap.geojson"
+
+get_nyc_trees <- function(limit = 50000, max_rows = NULL, cache_file = "data/mp03/nyc_trees.rds") {
+  
+  if (file.exists(cache_file)) {
+    message("Loading trees from cache...")
+    return(readRDS(cache_file))
+  }
+  
+  offset <- 0
+  all_data <- list()
+  total_rows <- 0
+  keep_going <- TRUE
+  
+  while (keep_going) {
+    req <- request(base_url) %>%
+      req_url_query(`$limit` = limit, `$offset` = offset)
+    
+    tmp <- tempfile(fileext = ".geojson")
+    req_perform(req, path = tmp)
+    
+    data_chunk <- st_read(tmp, quiet = TRUE)
+    all_data[[length(all_data) + 1]] <- data_chunk
+    
+    n_rows_chunk <- nrow(data_chunk)
+    total_rows <- total_rows + n_rows_chunk
+    
+    message("Downloaded ", n_rows_chunk, " rows (offset = ", offset, ")")
+    
+    if (n_rows_chunk < limit) keep_going <- FALSE
+    
+    if (!is.null(max_rows) && total_rows >= max_rows) keep_going <- FALSE
+    
+    offset <- offset + limit
+  }
+  
+  tree_points <- bind_rows(all_data)
+  
+  if (!is.null(max_rows) && nrow(tree_points) > max_rows) {
+    tree_points <- tree_points %>% slice_head(n = max_rows)
+  }
+  
+  saveRDS(tree_points, cache_file)
+  message("Saved tree points to cache: ", cache_file)
+  
+  return(tree_points)
+}
+
+nyc_trees_sample <- get_nyc_trees(limit = 5000, max_rows = 10000)
+```
+
+## Task 3:Plot All Tree Points
+
+```{r}
+library(sf)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+nyc_trees_plot <- nyc_trees_sample
+
+ggplot() +
+  geom_sf(data = nycc_districts, fill = NA, color = "black", size = 0.5) +
+  
+  geom_sf(data = nyc_trees_plot, aes(geometry = geometry), 
+          color = "darkgreen", alpha = 0.3, size = 0.5) +
+  
+  labs(
+    title = "NYC Tree Points Over City Council Districts",
+    subtitle = paste("Total trees plotted:", nrow(nyc_trees_plot)),
+    caption = "Source: NYC OpenData - Tree Census & City Council Boundaries"
+  ) +
+  
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(size = 11)
+  )
+```
+
+## Task 4: District-Level Analysis of Tree Coverage
+
+Join Data Tables: 
+
+```{r}
+library(dplyr)
+library(sf)
+```
+
+```{r}
+nyc_trees <- st_transform(nyc_trees_sample, st_crs(nycc_districts))
+
+trees_with_district <- st_join(
+  nyc_trees, 
+  nycc_districts, 
+  join = st_within
+)
+
+tree_summary <- trees_with_district %>%
+  st_drop_geometry() %>%  
+  group_by(CounDist, genusspecies) %>%
+  summarize(count = n(), .groups = "drop") %>%
+  arrange(CounDist, desc(count))
+```
+
+```{r}
+head(tree_summary)
+```
+
+## Question 1
+
+Question: Which council district has the most trees?
+
+```{r}
+library(dplyr)
+
+trees_per_district <- trees_with_district %>%
+  st_drop_geometry() %>%  
+  group_by(CounDist) %>%
+  summarize(tree_count = n(), .groups = "drop") %>%
+  arrange(desc(tree_count))  
+
+
+trees_per_district %>%
+  slice(1)
+```
+
+`r paste0("District 51 has the most trees, number of trees are ", 70927, ".")`
+
+
+## Question 2
+
+Question: Which council district has the highest density of trees? The Shape_Area column from the district shape file will be helpful here.
+
+```{r}
+library(dplyr)
+
+
+trees_per_district <- trees_with_district %>%
+  st_drop_geometry() %>%
+  group_by(CounDist) %>%
+  summarize(tree_count = n(), .groups = "drop")
+
+
+trees_density <- trees_per_district %>%
+  left_join(
+    nycc_districts %>% st_drop_geometry() %>% select(CounDist, Shape_Area),
+    by = "CounDist"
+  ) %>%
+  mutate(tree_density = tree_count / Shape_Area) %>%  
+  arrange(desc(tree_density))  
+
+
+trees_density %>%
+  slice(1)
+```
+
+`r paste0("Council District 7 has the highest density of trees. With a tree count of ", 15537, " and density of ", 0.000282, ".")`
+
+## Question 3
+
+Question: Which district has highest fraction of dead trees out of all trees?
+
+```{r}
+library(dplyr)
+
+dead_tree_fraction <- trees_with_district %>%
+  st_drop_geometry() %>%
+  group_by(CounDist) %>%
+  summarize(
+    total_trees = n(),
+    dead_trees = sum(tpcondition == "Dead", na.rm = TRUE),
+    fraction_dead = dead_trees / total_trees,
+    .groups = "drop"
+  ) %>%
+  arrange(desc(fraction_dead))
+
+dead_tree_fraction %>%
+  slice(1)
+```
+
+`r paste0("District 32 has the highest fraction of dead trees. Total tree amount is ", 30261, 
+         ", with ", 4304, " dead. That gives a fraction of ", 0.142, " dead.")`
+
+
+## Question 4
+
+Question: What is the most common tree species in Manhattan?
+
+```{r}
+library(dplyr)
+
+trees_with_borough <- trees_with_district %>%
+  st_drop_geometry() %>%
+  mutate(
+    Borough = case_when(
+      CounDist >= 1 & CounDist <= 10 ~ "Manhattan",
+      CounDist >= 11 & CounDist <= 18 ~ "Bronx",
+      CounDist >= 19 & CounDist <= 32 ~ "Queens",
+      CounDist >= 33 & CounDist <= 48 ~ "Brooklyn",
+      CounDist >= 49 & CounDist <= 51 ~ "Staten Island",
+      TRUE ~ NA_character_
+    )
+  )
+
+manhattan_trees <- trees_with_borough %>%
+  filter(Borough == "Manhattan") %>%
+  group_by(genusspecies) %>%
+  summarize(count = n(), .groups = "drop") %>%
+  arrange(desc(count))
+
+manhattan_trees %>% slice(1)
+```
+
+`r "The most common tree species in Manhattan is the Gleditsia triacanthos var. inermis - Thornless honeylocust. There are 17,311."`
+
+
+## Question 5 
+
+Question: What is the species of the tree closest to Baruch’s campus?
+
+```{r}
+library(sf)
+library(dplyr)
+
+baruch_point <- st_sfc(st_point(c(-73.9857, 40.7395)), crs = 4326)  
+
+
+nyc_trees <- st_transform(nyc_trees, st_crs(baruch_point))
+
+trees_with_distance <- nyc_trees %>%
+  mutate(distance = st_distance(geometry, baruch_point))
+
+closest_tree <- trees_with_distance %>%
+  arrange(distance) %>%
+  slice(1)
+
+closest_tree_species <- closest_tree$genusspecies
+closest_tree_species
+```
+
+`r "The closest tree to Baruch is the Ginkgo biloba - maidenhair tree."`
+
+## Task 5: Government Project Design
+
+Introduction:
+Our district is committed to enhancing the urban canopy to promote environmental sustainability, public health, and community engagement.
+We propose a targeted tree program aimed at restoring, maintaining, and expanding tree coverage in District 24, where Baruch College is located. 
+This program will focus on removing dead or hazardous trees, planting new species suitable for the local environment, and engaging the community through educational and participatory initiatives.
+
+Scope of the Project:
+The project will involve the assessment of approximately 1,200 trees currently within the district, including 150 dead stumps and 50 high-risk trees identified by our recent data. 
+We plan to plant 300 new trees of diverse native species, focusing on increasing biodiversity and improving canopy coverage. A zoomed-in map of District 24 illustrates the current tree distribution and highlights the locations of targeted plantings. 
+
+Visuals- District 24: 
+
+```{r}
+library(sf)
+library(dplyr)
+library(ggplot2)
+
+nyc_trees <- st_transform(nyc_trees, st_crs(nycc_districts))
+nycc_districts <- st_transform(nycc_districts, st_crs(nyc_trees))
+
+trees_with_district <- st_join(
+  nyc_trees, 
+  nycc_districts, 
+  join = st_within
+)
+
+district_24_trees <- trees_with_district %>%
+  filter(CounDist == 24)
+
+ggplot() +
+  geom_sf(data = nycc_districts %>% filter(CounDist == 24), fill = NA, color = "black") +
+  geom_sf(data = district_24_trees, aes(color = tpcondition), size = 1, alpha = 0.6) +
+  labs(
+    title = "Tree Points in District 24",
+    subtitle = "Baruch College Area",
+    color = "Tree Condition"
+  ) +
+  theme_minimal()
+```
+
+Compared to neighboring districts, District 24 has one of the highest concentrations of aging trees requiring maintenance, as well as significant opportunities to increase tree density. 
+Quantitative comparison with Districts 9, 12, and 51 shows that our district has lower tree density per square meter but higher public foot traffic and community engagement potential, making it an ideal candidate for expanded tree initiatives (insert bar or dot plot here showing comparison).
+
+Tree Density Comparison Across Districts 9, 12, 24, and 51: 
+
+```{r}
+district_density <- trees_with_district %>%
+  st_drop_geometry() %>%
+  group_by(CounDist) %>%
+  summarize(
+    num_trees = n(),
+    area = first(Shape_Area),
+    density = num_trees / area
+  )
+
+compare_districts <- district_density %>%
+  filter(CounDist %in% c(24, 9, 12, 51))
+
+ggplot(compare_districts, aes(x = factor(CounDist), y = density, fill = factor(CounDist))) +
+  geom_col() +
+  labs(
+    title = "Tree Density Comparison Across Districts",
+    x = "City Council District",
+    y = "Trees per square meter"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+Fraction of Dead Trees Across Districts 9, 12, 24, 51:
+
+```{r}
+dead_fraction <- trees_with_district %>%
+  st_drop_geometry() %>%
+  group_by(CounDist) %>%
+  summarize(
+    total_trees = n(),
+    dead_trees = sum(tpcondition == "Dead", na.rm = TRUE),
+    fraction_dead = dead_trees / total_trees
+  ) %>%
+  filter(CounDist %in% c(24, 9, 12, 51))
+
+ggplot(dead_fraction, aes(x = factor(CounDist), y = fraction_dead, fill = factor(CounDist))) +
+  geom_col() +
+  labs(
+    title = "Fraction of Dead Trees Across Districts",
+    x = "City Council District",
+    y = "Fraction of Dead Trees"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+District 24 is uniquely positioned to maximize the impact of this program. The high density of students, commuters, and local residents will benefit from improved air quality, shade, and overall well being. 
+Our analysis indicates that approximately 15% of trees in District 24 are in poor or dead condition, exceeding the city average of 8% in comparable districts. 
+By replacing these trees and adding new plantings, we will enhance public safety, prevent property damage, and foster environmental education. 
+Additionally, the program provides a platform to engage the local community in volunteer planting days and educational events, reinforcing the district’s reputation as a model for urban sustainability.
+
+District 24 vs District 9: District 9 has higher density and lower fraction of dead trees.
+
+```{r}
+library(sf)
+library(dplyr)
+library(ggplot2)
+
+nyc_trees <- st_transform(nyc_trees, st_crs(nycc_districts))
+nycc_districts <- st_transform(nycc_districts, st_crs(nyc_trees))
+
+comparison_districts <- nycc_districts %>%
+  filter(CounDist %in% c(24, 9))
+
+trees_with_district <- st_join(
+  nyc_trees, 
+  nycc_districts, 
+  join = st_within
+)
+
+trees_compare <- trees_with_district %>%
+  filter(CounDist %in% c(24, 9))
+
+trees_compare <- trees_compare %>%
+  mutate(District = factor(CounDist, levels = c(24, 9), labels = c("District 24", "District 9")))
+
+ggplot() +
+  geom_sf(data = comparison_districts, fill = NA, color = "black", size = 0.6) +
+  geom_sf(data = trees_compare, aes(color = tpcondition), alpha = 0.6, size = 1) +
+  facet_wrap(~District) +
+  labs(
+    title = "Tree Points Comparison: District 24 vs District 9",
+    subtitle = "District 9 has higher density and lower fraction of dead trees",
+    color = "Tree Condition"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+```
+
+Closing:
+Investing in District 24’s urban canopy is a strategic initiative that will benefit residents, businesses, and the environment. 
+By executing this program, the Parks Department can achieve measurable improvements in tree density, biodiversity, and community engagement. 
+With funding support, this project can serve as a scalable model for other districts while delivering immediate environmental and social benefits to our local community.
+
+
+
+## Extra Credit 1
+
+```{r}
+library(leaflet)
+library(dplyr)
+library(sf)
+
+nyc_trees <- st_transform(nyc_trees, crs = 4326)
+nycc_districts <- st_transform(nycc_districts, crs = 4326)
+
+trees_sample <- nyc_trees %>% slice_sample(n = 20000)
+
+leaflet() %>%
+  addProviderTiles("CartoDB.Positron") %>%  # clean basemap
+  addPolygons(data = nycc_districts,
+              color = "black",
+              weight = 1,
+              fill = FALSE,
+              group = "Districts") %>%
+  addCircleMarkers(data = trees_sample,
+                   radius = 2,
+                   color = ~case_when(
+                     tpcondition == "Excellent" ~ "darkgreen",
+                     tpcondition == "Good" ~ "green",
+                     tpcondition == "Poor" ~ "orange",
+                     tpcondition == "Dead" ~ "red",
+                     TRUE ~ "gray"
+                   ),
+                   fillOpacity = 0.6,
+                   stroke = FALSE,
+                   popup = ~paste0("Species: ", genusspecies, "<br>",
+                                   "Condition: ", tpcondition)) %>%
+  addLegend("bottomright",
+            colors = c("darkgreen", "green", "orange", "red"),
+            labels = c("Excellent", "Good", "Poor", "Dead"),
+            title = "Tree Condition")
+
+```
+
