@@ -4,6 +4,10 @@ format:
   html:
     code-fold: true
     code-summary: "Show the code"
+execute:
+  echo: true
+  warning: false
+  message: false
 ---
 
 ## Table of Contents 
@@ -577,11 +581,11 @@ ggplot(ces_full, aes(x = date, y = revision, color = party)) +
 
 What this shows: 
 
--Every monthly revision across 45 years
--Colored red for Republican, blue for Democrat
--Zero line to show over/under-estimation
--Spikes during recessions (1982, 2008, 2020)
--Shows that revisions bounce both ways regardless of party
+- Every monthly revision across 45 years
+- Colored red for Republican, blue for Democrat
+- Zero line to show over/under-estimation
+- Spikes during recessions (1982, 2008, 2020)
+- Shows that revisions bounce both ways regardless of party
 
 
 
@@ -626,9 +630,9 @@ ggplot(abs_pct_by_decade,
 
 What this shows:
   
-- 1980s → highest revision %
-- 1990s–2010s → stable at much lower levels
-- 2020s → noisy early COVID months, then revisions smaller than the 1980s and the mid-2000s
+- 1980s: highest revision %
+- 1990s–2010s: stable at much lower levels
+- 2020s: noisy early COVID months, then revisions smaller than the 1980s and the mid-2000s
 
 
 ## Final Conclusion: 
