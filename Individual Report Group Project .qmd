@@ -1,0 +1,250 @@
+---
+title: "Per-Capita Healthcare Facility Availability Across New York City Boroughs"
+author: "Imani Cooper"
+date: "December 18, 2025"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: true
+    code-summary: "Show code"
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+
+## Introduction
+
+Access to healthcare facilities is a central component of population health and a key determinant of health inequality across urban environments. In dense metropolitan regions such as NYC, where more than eight million residents are dispersed across five boroughs with diverse socioeconomic characteristics, the spatial distribution of hospitals and acute care centers directly influences the accessibility of essential medical services. Geographic proximity to healthcare resources can shape an individual’s likelihood of receiving timely emergency treatment, preventive care, and specialized services. As a result, measuring how healthcare facility availability varies across neighborhoods is critical for understanding—and ultimately addressing—structural inequities in health outcomes.
+
+Our group project collectively examines the broader question:
+
+## How does geographic access to healthcare facilities vary across NYC at the census tract level, and what socioeconomic disparities exist in healthcare access?
+
+This larger research goal requires multiple analytic components, including spatial mapping, socioeconomic indicator integration, and facility availability measurement. My individual contribution addresses one central piece of this broader question: baseline capacity and population adjusted facility availability.
+
+Specifically, my individual research question is:
+
+## How does per-capita healthcare facility availability vary by borough or Zip code in New York City?
+
+My goal is to quantify the number of hospitals relative to borough populations to assess whether facility availability is proportionate to population needs or whether certain boroughs are comparatively underserved. Per capita metrics allow us to compare boroughs of differing population sizes on equal footing.
+
+Although my original research question included the possibility of comparing availability across ZIP codes, this level of granularity was ultimately not feasible due to the structure of the available NYC Open Data facility datasets. The "NYC Hospitals" dataset do not include ZIP codes as variables, preventing analysis at more detailed sub borough levels. For this reason, the analysis presented here focuses exclusively on borough level differences.
+
+Nevertheless, these findings play a vital role in our group's larger study. Borough level inequalities provide the first indication of geographic variations in healthcare capacity. These aggregate differences then serve as a foundation upon which census tract level analyses and socioeconomic comparisons are built. For instance, boroughs with lower per capita facility availability may also contain census tracts with high poverty rates, low insurance coverage, or higher proportions of marginalized racial and ethnic groups relationships that other group members investigate more deeply.
+
+This report proceeds with a detailed description of the data sources, data processing workflow, analytical methods, results, and implications. A reproducible research approach is used throughout, with all R code included in executable form. This ensures transparency, replicability, and alignment with course expectations for computational research.
+
+
+# Data Sources 
+
+This analysis draws from two datasets, one sourced from the NYC Open Data Portal (https://opendata.cityofnewyork.us/), and the other one borough level
+population dataset from the NYC Department of City Planning for population projections. All datasets were downloaded in October 2025 and stored locally in CSV format. Below I describe each dataset and how it contributed to the analysis.
+
+## 1. NYC Hospitals Dataset
+
+The main facility dataset used in this analysis is the NYC Open Data “Hospital” dataset 
+(downloaded October 26, 2025). This dataset includes 78 healthcare facilities located across 
+New York City and contains information on facility type, borough, facility name, phone 
+number, and geographic location. Because ZIP code information was not available in this dataset,
+all analysis is conducted at the borough level.
+
+## 2. NYC Population Since 1950 Dataset
+
+Population data were obtained from the “NYC Population Since 1950” dataset, which provides 
+borough level population counts and projections from 1950 through 2040. This dataset includes:
+- 2020 Census population values
+- 2030 population projections
+
+These population values served as endpoints to estimate borough populations in 2024 and 2025, the years most relevant to the facility dataset snapshot.
+
+Because population growth between 2020 and 2030 is assumed to be approximately linear, this offers a reasonable approximation for mid decade estimates.
+
+
+## Methods: 
+
+This section describes the technical workflow used to clean, merge, and analyze the data. All code is included as required for a reproducible research workflow.
+
+## Data Loading
+
+1. List of hospitals and health facilities:
+
+```{r}
+library(dplyr)
+library(readr)
+
+hospital <- read_csv("hospital_20251026.csv")
+```
+
+
+To get a glimpse of the data: 
+
+Hospitals
+
+```{r}
+glimpse(hospital)
+```
+
+
+2. Facility count by Borough: 
+
+```{r}
+facilities_by_borough <- hospital %>%
+  group_by(Borough) %>%
+  summarise(num_facilities = n()) %>%
+  arrange(desc(num_facilities))
+
+facilities_by_borough
+```
+
+To show that filter by zip code was not operable: 
+
+```{r}
+facilities_by_zip <- hospital %>%
+  group_by(ZIPCODE) %>%
+  summarise(num_facilities = n()) %>%
+  arrange(desc(num_facilities))
+
+facilities_by_zip
+```
+
+
+3. Prepare Population Data to Estimate (2024-2025):
+
+```{r}
+nyc_pop <- read_csv("NYC Population since 1950.csv")
+```
+
+glimpse of the nyc population across all boroughs:
+
+```{r}
+glimpse(nyc_pop)
+```
+
+NYC population of 2020 and 2030 only: 
+
+```{r}
+nyc_pop_recent <- nyc_pop %>%
+  select(Borough, `2020`, `2030`) %>%
+  filter(Borough != "NYC Total")
+
+nyc_pop_recent
+```
+
+Population data frame to get estimate of 2024 and 2025:
+
+Combined with the population data (per 100,000 residents/facilities/borough) to give a view of availabilty.
+
+```{r}
+population_data <- data.frame(
+  Borough = c("Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island"),
+  Pop_2024 = c(1446788 + (1518998 - 1446788) * 4/10,  
+               2648452 + (2754009 - 2648452) * 4/10,
+               1638281 + (1676720 - 1638281) * 4/10,
+               2330295 + (2373551 - 2330295) * 4/10,
+               487155 + (497749 - 487155) * 4/10),
+  Pop_2025 = c(1446788 + (1518998 - 1446788) * 5/10,  
+               2648452 + (2754009 - 2648452) * 5/10,
+               1638281 + (1676720 - 1638281) * 5/10,
+               2330295 + (2373551 - 2330295) * 5/10,
+               487155 + (497749 - 487155) * 5/10)
+)
+
+facilities_per_capita <- facilities_by_borough %>%
+  left_join(population_data, by = "Borough") %>%
+  mutate(facilities_per_100k_2024 = (num_facilities / Pop_2024) * 100000,
+         facilities_per_100k_2025 = (num_facilities / Pop_2025) * 100000) %>%
+  arrange(desc(facilities_per_100k_2025))
+
+facilities_per_capita
+```
+
+
+Visuals of available facilities per 100,000 residents in nyc: 
+
+```{r}
+library(ggplot2)
+
+ggplot(facilities_per_capita, aes(x = reorder(Borough, -facilities_per_100k_2025), y = facilities_per_100k_2025)) +
+  geom_col(fill = "steelblue") +
+  labs(title = "Per-Capita Healthcare Facilities by Borough (2025 Estimate)",
+       x = "Borough",
+       y = "Facilities per 100,000 Residents") +
+  theme_minimal()
+```
+
+
+This reveal substantial differences in per-capita healthcare facility availability across NYC's five boroughs:
+
+```{r}
+library(knitr)
+
+facilities_per_capita %>%
+select(Borough, num_facilities, Pop_2024, facilities_per_100k_2024) %>%
+mutate(
+Pop_2024 = round(Pop_2024),
+facilities_per_100k_2024 = round(facilities_per_100k_2024, 2)
+) %>%
+kable(
+caption = "Table 1. Per-Capita Healthcare Facility Availability by Borough (2024 Estimates)",
+col.names = c("Borough", "Facilities", "Population (2024)", "Facilities per 100,000 Residents")
+)
+```
+
+
+The disparities are striking. Manhattan has roughly three times as many hospitals per capita as Queens and more than double Staten Island’s rate.
+
+The visualization underscores three tiers of access:
+
+Tier 1: Manhattan
+
+High facility density, likely due to medical centers, teaching hospitals, and specialized institutions.
+
+Tier 2: Brooklyn & Bronx
+
+Middle range of availability, yet still below Manhattan by a significant margin.
+
+Tier 3: Staten Island & Queens
+
+Lowest per-capita access, suggesting potential geographic barriers.
+
+
+## Discussion
+
+This analysis reveals a meaningful pattern in the geography of hospital availability across NYC. Manhattan stands out as a medical hub, containing a high concentration of hospitals relative to its population. The Bronx and Brooklyn have similar mid-range access levels, but still fall below Manhattan’s density. Queens and Staten Island appear comparatively underserved, suggesting greater distance to care for many residents.
+
+Connection to Group Question:
+
+For our group’s larger analysis of healthcare access at the census tract level, these borough level disparities provide critical context. Tracts within boroughs that already show low per-capita facility availability may face compounding disadvantages.
+
+- Queens despite being the second largest borough by population, has the lowest facility density. This may translate into longer travel times, fewer specialized services, and higher burden on existing facilities.
+
+- Staten Island geographically isolated, shows similar limitations.
+
+- Bronx tracts may have moderate facility availability, but the borough’s high poverty rate and greater health burden suggest additional inequities beyond geographic metrics.
+
+These findings underscore the importance of integrating socioeconomic data such as income, race, education, and insurance coverage to assess whether disadvantaged populations are disproportionately located in areas with fewer healthcare resources.
+
+
+## Conclusion: 
+
+This analysis demonstrates that healthcare facility availability is not evenly distributed across New York City. Manhattan has the highest per-capita availability of hospitals, while Queens and Staten Island have markedly lower access. These disparities have potential implications for emergency response times, preventive care access, and overall health outcomes.
+
+While this individual report is limited to borough level analysis due to dataset constraints, it establishes a foundational understanding of geographic variation that informs the broader group project. Future work should incorporate:
+
+Census tract level socioeconomic indicators
+
+Travel time or distance to provider models
+
+Facility type granularity (urgent care, community health centers, specialty hospitals)
+
+Understanding healthcare access requires both macro and micro-level perspectives. This report provides the macro level baseline necessary for assessing equity across NYC's diverse communities.
+
+Imani Cooper 
+
+
+
+
