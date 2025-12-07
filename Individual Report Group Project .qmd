@@ -102,7 +102,7 @@ facilities_by_borough
 
 To show that filter by zip code was not operable: 
 
-```{r}
+```{r, eval=FALSE}
 facilities_by_zip <- hospital %>%
   group_by(ZIPCODE) %>%
   summarise(num_facilities = n()) %>%
