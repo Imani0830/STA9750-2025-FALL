@@ -24,5 +24,7 @@ format:
 
 editor:
   mode: source
-  
+  tools:
+      - icon: github
+        href: https://github.com/imani0830
   
