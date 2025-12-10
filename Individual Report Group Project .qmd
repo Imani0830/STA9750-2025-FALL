@@ -195,7 +195,7 @@ col.names = c("Borough", "Facilities", "Population (2024)", "Facilities per 100,
 ```
 
 
-The disparities are striking. Manhattan has roughly three times as many hospitals per capita as Queens and more than double Staten Island’s rate.
+The disparities are striking. Manhattan has roughly three times as many hospitals per-capita as Queens and more than double Staten Island’s rate.
 
 The visualization underscores three tiers of access:
 
@@ -231,7 +231,7 @@ These findings underscore the importance of integrating socioeconomic data such 
 
 ## Conclusion: 
 
-This analysis demonstrates that healthcare facility availability is not evenly distributed across New York City. Manhattan has the highest per-capita availability of hospitals, while Queens and Staten Island have markedly lower access. These disparities have potential implications for emergency response times, preventive care access, and overall health outcomes.
+This analysis demonstrates that healthcare facility availability is not evenly distributed across New York City. Manhattan has the highest per capita availability of hospitals, while Queens and Staten Island have markedly lower access. These disparities have potential implications for emergency response times, preventive care access, and overall health outcomes.
 
 While this individual report is limited to borough level analysis due to dataset constraints, it establishes a foundational understanding of geographic variation that informs the broader group project. Future work should incorporate:
 
@@ -241,7 +241,7 @@ Travel time or distance to provider models
 
 Facility type granularity (urgent care, community health centers, specialty hospitals)
 
-Understanding healthcare access requires both macro and micro-level perspectives. This report provides the macro level baseline necessary for assessing equity across NYC's diverse communities.
+Understanding healthcare access requires both macro and micro level perspectives. This report provides the macro level baseline necessary for assessing equity across NYC's diverse communities.
 
 Imani Cooper 
 
