@@ -10,7 +10,13 @@ website:
   navbar:
     background: primary
     search: false
-    
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "Projects"
+        menu:
+        - text: "Project 1: Transit"
+          href: mp01.qmd
 format:
   html:
     theme: solar
