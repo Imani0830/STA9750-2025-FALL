@@ -41,7 +41,7 @@ This report proceeds with a detailed description of the data sources, data proce
 
 # Data Sources 
 
-This analysis draws from same data source but, two data sets, one sourced from the: [NYC Open Data Portal](https://opendata.cityofnewyork.us/)and the other one borough level
+This analysis draws from same data source but, two data sets, one sourced from the: [NYC Open Data Portal](https://opendata.cityofnewyork.us/) and the other one borough level
 population dataset from [NYC Open Data Portal](https://data.cityofnewyork.us/City-Government/NYC-population-1950-2020/6kh3-uz2q) for population projections. All datasets were downloaded in October 2025 and stored locally in CSV format. Below I describe each dataset and how it contributed to the analysis.
 
 ## 1. NYC Hospitals Dataset
