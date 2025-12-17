@@ -122,7 +122,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <span class="navbar-title">STA 9750 Submission Material</span>
     </a>
   </div>
-        <div class="quarto-navbar-tools tools-end">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-projects" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Projects</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-projects">    
+        <li>
+    <a class="dropdown-item" href="./mp01.html">
+ <span class="dropdown-text">Project 1: Transit</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+    <a href="https://github.com/imani0830" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -143,10 +166,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#nyc-hospitals-dataset" id="toc-nyc-hospitals-dataset" class="nav-link" data-scroll-target="#nyc-hospitals-dataset"><span class="header-section-number">1.1</span> 1. NYC Hospitals Dataset</a></li>
   <li><a href="#nyc-population-since-1950-dataset" id="toc-nyc-population-since-1950-dataset" class="nav-link" data-scroll-target="#nyc-population-since-1950-dataset"><span class="header-section-number">1.2</span> 2. NYC Population Since 1950 Dataset</a></li>
-  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods"><span class="header-section-number">1.3</span> Methods:</a></li>
+  <li><a href="#coding" id="toc-coding" class="nav-link" data-scroll-target="#coding"><span class="header-section-number">1.3</span> Coding:</a></li>
   <li><a href="#data-loading" id="toc-data-loading" class="nav-link" data-scroll-target="#data-loading"><span class="header-section-number">1.4</span> Data Loading</a></li>
   <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion"><span class="header-section-number">1.5</span> Discussion</a></li>
-  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">1.6</span> Conclusion:</a></li>
+  <li><a href="#equity-implications" id="toc-equity-implications" class="nav-link" data-scroll-target="#equity-implications"><span class="header-section-number">1.6</span> Equity Implications</a></li>
+  <li><a href="#policy-relevance-limitations-and-future-directions" id="toc-policy-relevance-limitations-and-future-directions" class="nav-link" data-scroll-target="#policy-relevance-limitations-and-future-directions"><span class="header-section-number">1.7</span> Policy Relevance, Limitations, and Future Directions</a></li>
+  <li><a href="#importance-of-population-adjusted-metrics-for-urban-health-planning" id="toc-importance-of-population-adjusted-metrics-for-urban-health-planning" class="nav-link" data-scroll-target="#importance-of-population-adjusted-metrics-for-urban-health-planning"><span class="header-section-number">1.8</span> Importance of Population-Adjusted Metrics for Urban Health Planning</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">1.9</span> Conclusion:</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -187,24 +213,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="introduction" class="level2" data-number="0.1">
 <h2 data-number="0.1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">0.1</span> Introduction</h2>
-<p>Access to healthcare facilities is a central component of population health and a key determinant of health inequality across urban environments. In dense metropolitan regions such as NYC, where more than eight million residents are dispersed across five boroughs with diverse socioeconomic characteristics, the spatial distribution of hospitals and acute care centers directly influences the accessibility of essential medical services. Geographic proximity to healthcare resources can shape an individual’s likelihood of receiving timely emergency treatment, preventive care, and specialized services. As a result, measuring how healthcare facility availability varies across neighborhoods is critical for understanding—and ultimately addressing—structural inequities in health outcomes.</p>
-<p>Our group project collectively examines the broader question:</p>
+<p>Access to healthcare facilities is a central component of population health and a key determinant of health inequality across urban environments. In dense metropolitan regions such as NYC, where there are more than eight million residents dispersed across five boroughs with diverse socioeconomic characteristics, the spatial distribution of hospitals directly influences the accessibility of essential medical care. Geographic proximity to healthcare resources can shape an individual’s likelihood of receiving timely emergency treatment, preventive care, and specialized services. As a result, measuring how healthcare facility availability varies across neighborhoods is critical for understanding and ultimately addressing structural inequities in health outcomes.</p>
+<p>Our group project collectively examines the broader question (QQ):</p>
 </section>
 <section id="how-does-geographic-access-to-healthcare-facilities-vary-across-nyc-at-the-census-tract-level-and-what-socioeconomic-disparities-exist-in-healthcare-access" class="level2" data-number="0.2">
 <h2 data-number="0.2" class="anchored" data-anchor-id="how-does-geographic-access-to-healthcare-facilities-vary-across-nyc-at-the-census-tract-level-and-what-socioeconomic-disparities-exist-in-healthcare-access"><span class="header-section-number">0.2</span> How does geographic access to healthcare facilities vary across NYC at the census tract level, and what socioeconomic disparities exist in healthcare access?</h2>
-<p>This larger research goal requires multiple analytic components, including spatial mapping, socioeconomic indicator integration, and facility availability measurement. My individual contribution addresses one central piece of this broader question: baseline capacity and population adjusted facility availability.</p>
-<p>Specifically, my individual research question is:</p>
+<p>This larger research goal requires multiple analytic components, including spatial mapping, socioeconomic indicator integration, and facility availability measurement. My SQ addresses one central piece of this broader question: baseline capacity and population adjusted facility availability.</p>
+<p>Specifically, my individual research question (SQ) is:</p>
 </section>
 <section id="how-does-per-capita-healthcare-facility-availability-vary-by-borough-or-zip-code-in-new-york-city" class="level2" data-number="0.3">
 <h2 data-number="0.3" class="anchored" data-anchor-id="how-does-per-capita-healthcare-facility-availability-vary-by-borough-or-zip-code-in-new-york-city"><span class="header-section-number">0.3</span> How does per-capita healthcare facility availability vary by borough or Zip code in New York City?</h2>
-<p>My goal is to quantify the number of hospitals relative to borough populations to assess whether facility availability is proportionate to population needs or whether certain boroughs are comparatively underserved. Per capita metrics allow us to compare boroughs of differing population sizes on equal footing.</p>
+<p>My goal is to quantify the number of hospitals relative to borough populations to assess whether facility availability is proportionate to population needs or whether certain boroughs are comparatively under served. Per-capita metrics allow us to compare boroughs of differing population sizes on equal footing.</p>
 <p>Although my original research question included the possibility of comparing availability across ZIP codes, this level of granularity was ultimately not feasible due to the structure of the available NYC Open Data facility datasets. The “NYC Hospitals” dataset do not include ZIP codes as variables, preventing analysis at more detailed sub borough levels. For this reason, the analysis presented here focuses exclusively on borough level differences.</p>
 <p>Nevertheless, these findings play a vital role in our group’s larger study. Borough level inequalities provide the first indication of geographic variations in healthcare capacity. These aggregate differences then serve as a foundation upon which census tract level analyses and socioeconomic comparisons are built. For instance, boroughs with lower per capita facility availability may also contain census tracts with high poverty rates, low insurance coverage, or higher proportions of marginalized racial and ethnic groups relationships that other group members investigate more deeply.</p>
 <p>This report proceeds with a detailed description of the data sources, data processing workflow, analytical methods, results, and implications. A reproducible research approach is used throughout, with all R code included in executable form. This ensures transparency, replicability, and alignment with course expectations for computational research.</p>
 </section>
 <section id="data-sources" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Data Sources</h1>
-<p>This analysis draws from two datasets, one sourced from the NYC Open Data Portal (https://opendata.cityofnewyork.us/), and the other one borough level population dataset from the NYC Department of City Planning for population projections. All datasets were downloaded in October 2025 and stored locally in CSV format. Below I describe each dataset and how it contributed to the analysis.</p>
+<p>This analysis draws from same data source but, two data sets, one sourced from the: <a href="https://opendata.cityofnewyork.us/">NYC Open Data Portal</a>and the other one borough level population dataset from <a href="https://data.cityofnewyork.us/City-Government/NYC-population-1950-2020/6kh3-uz2q">NYC Open Data Portal</a> for population projections. All datasets were downloaded in October 2025 and stored locally in CSV format. Below I describe each dataset and how it contributed to the analysis.</p>
 <section id="nyc-hospitals-dataset" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="nyc-hospitals-dataset"><span class="header-section-number">1.1</span> 1. NYC Hospitals Dataset</h2>
 <p>The main facility dataset used in this analysis is the NYC Open Data “Hospital” dataset (downloaded October 26, 2025). This dataset includes 78 healthcare facilities located across New York City and contains information on facility type, borough, facility name, phone number, and geographic location. Because ZIP code information was not available in this dataset, all analysis is conducted at the borough level.</p>
@@ -215,8 +241,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>These population values served as endpoints to estimate borough populations in 2024 and 2025, the years most relevant to the facility dataset snapshot.</p>
 <p>Because population growth between 2020 and 2030 is assumed to be approximately linear, this offers a reasonable approximation for mid decade estimates.</p>
 </section>
-<section id="methods" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="methods"><span class="header-section-number">1.3</span> Methods:</h2>
+<section id="coding" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="coding"><span class="header-section-number">1.3</span> Coding:</h2>
 <p>This section describes the technical workflow used to clean, merge, and analyze the data. All code is included as required for a reproducible research workflow.</p>
 </section>
 <section id="data-loading" class="level2" data-number="1.4">
@@ -487,10 +513,21 @@ $ `2040 - Boro share of NYC total` &lt;chr&gt; "100%", "17.5%", "31.47%", "18.74
 <p>Middle range of availability, yet still below Manhattan by a significant margin.</p>
 <p>Tier 3: Staten Island &amp; Queens</p>
 <p>Lowest per-capita access, suggesting potential geographic barriers.</p>
+<p>Using population projections for 2024–2025 was important because it allowed me to standardize hospital availability by the number of people living in each borough. A raw count of hospitals only tells you how many facilities physically exist in each borough, but it does not tell you how many people those hospitals need to serve.</p>
+<p>For example, Brooklyn has 26 hospitals, which is the most overall. But Brooklyn also has the largest population in NYC over 2.6 million residents. When you divide 26 hospitals by that population size, the actual access per person ends up being much lower.</p>
+<p>By calculating hospitals per 100,000 residents, I could compare all boroughs fairly, even though their populations are not equal. This method shows accessibility more accurately because it answers the real question:</p>
+<p>“How many hospital options does the average person in each borough have?”</p>
+<p>When you look at the data this way:</p>
+<ul>
+<li><p>Manhattan, with fewer than 24 hospitals and a much smaller population, jumps to the top as the borough with the most access per resident.</p></li>
+<li><p>Queens, even though it has more hospitals than Staten Island, ends up with the lowest access because its population is so much larger.</p></li>
+<li><p>Staten Island, with only 3 hospitals, actually ranks above Queens once population size is considered.</p></li>
+</ul>
+<p>So, population adjusted numbers reveal the true level of access people have, instead of just showing how many buildings are present. Without adjusting for population, the disparities between boroughs would be hidden or misinterpreted.</p>
 </section>
 <section id="discussion" class="level2" data-number="1.5">
 <h2 data-number="1.5" class="anchored" data-anchor-id="discussion"><span class="header-section-number">1.5</span> Discussion</h2>
-<p>This analysis reveals a meaningful pattern in the geography of hospital availability across NYC. Manhattan stands out as a medical hub, containing a high concentration of hospitals relative to its population. The Bronx and Brooklyn have similar mid-range access levels, but still fall below Manhattan’s density. Queens and Staten Island appear comparatively underserved, suggesting greater distance to care for many residents.</p>
+<p>This analysis reveals a meaningful pattern in the geography of hospital availability across NYC. Manhattan stands out as a medical hub, containing a high concentration of hospitals relative to its population. The Bronx and Brooklyn have similar mid range access levels, but still fall below Manhattan’s density. Queens and Staten Island appear comparatively under served, suggesting greater distance to care for many residents.</p>
 <p>Connection to Group Question:</p>
 <p>For our group’s larger analysis of healthcare access at the census tract level, these borough level disparities provide critical context. Tracts within boroughs that already show low per-capita facility availability may face compounding disadvantages.</p>
 <ul>
@@ -500,15 +537,42 @@ $ `2040 - Boro share of NYC total` &lt;chr&gt; "100%", "17.5%", "31.47%", "18.74
 </ul>
 <p>These findings underscore the importance of integrating socioeconomic data such as income, race, education, and insurance coverage to assess whether disadvantaged populations are disproportionately located in areas with fewer healthcare resources.</p>
 </section>
-<section id="conclusion" class="level2" data-number="1.6">
-<h2 data-number="1.6" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">1.6</span> Conclusion:</h2>
-<p>This analysis demonstrates that healthcare facility availability is not evenly distributed across New York City. Manhattan has the highest per capita availability of hospitals, while Queens and Staten Island have markedly lower access. These disparities have potential implications for emergency response times, preventive care access, and overall health outcomes.</p>
+<section id="equity-implications" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="equity-implications"><span class="header-section-number">1.6</span> Equity Implications</h2>
+<p>When I started this project and looked at the raw number of hospitals in each borough, the picture seemed pretty straightforward Brooklyn had the most, Manhattan was close behind, and Queens and Staten Island were far lower. Once I adjusted everything by population size, the story completely changed. Manhattan ended up having the highest access to hospitals per person, and Queens had the lowest overall. That really shows why population adjusted measures matter; you can’t understand access by just counting buildings.</p>
+<p>For Queens especially, this is a major concern. Queens is one of the most diverse and heavily populated boroughs in NYC. A lot of working class families, new immigrants, and multigenerational households live there. So when you see that Queens has the lowest number of hospitals per 100,000 people, it makes sense why healthcare feels harder to get in certain neighborhoods. Lower per-capita access can mean longer ER wait times, overcrowded hospitals, and just a general strain on the system. For people who already face barriers like language, insurance issues, or transportation this can make getting care even harder.</p>
+<p>Staten Island is interesting because it looks extremely underserved if you only look at the total number of hospitals (just three). But when you adjust for population size, Staten Island actually does better than Queens. This made me realize how misleading raw numbers can be. A small borough with three hospitals can still have better access than a huge borough with eleven.</p>
+<p>Manhattan being on top also makes sense once you think about how the city is structured. Manhattan is the center for a lot of major medical institutions and research hospitals. These buildings aren’t only for Manhattan resident they serve people from all over the city. Still, living in Manhattan does give you much closer proximity to a wide range of healthcare options. Meanwhile, people living in outer boroughs often have to travel farther, deal with transportation delays, or spend more time navigating the system.</p>
+<p>These patterns also match what a lot of public health research already shows: cities often invest heavily in the central, wealthier, or more historic parts of the city, while outer areas get fewer resources. Healthcare is just one example of that. When the infrastructure doesn’t match the population, the result is a big gap in access.</p>
+<p>Another thing worth pointing out is that my analysis only includes hospitals. But in real life, people use urgent care centers, community health clinics, and private doctor offices just as much sometimes even more. Because my dataset didn’t include those additional providers, this is only one part of the bigger picture. Queens might have more clinics or urgent cares that help make up for fewer hospitals, and Manhattan might have more specialized facilities that attract people from everywhere, not just locals.</p>
+<p>Also, using borough level data doesn’t tell the full story. These boroughs are huge and have neighborhoods that look completely different from one another. Queens has some neighborhoods with decent healthcare access and others where people struggle to get basic services. Same with the Bronx and even Manhattan. Having ZIP code or census tract data would allow for a deeper and more accurate look.</p>
+<p>Transportation also plays a huge role in access that wasn’t measured here. A hospital may be physically close, but if there’s no direct subway line or the person doesn’t have a car, that hospital may be much harder to get to. Outer borough residents rely much more heavily on public transit, which adds time, stress, and limitations on when they can receive care.</p>
+<p>Overall, this data made it clear that healthcare access is not evenly distributed across NYC. The boroughs with the lowest access tend to be the same places where people already deal with other barriers like lower income, crowded housing, or less insurance coverage. So hospital access should be treated as an equity issue, not just a numbers issue.</p>
+</section>
+<section id="policy-relevance-limitations-and-future-directions" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="policy-relevance-limitations-and-future-directions"><span class="header-section-number">1.7</span> Policy Relevance, Limitations, and Future Directions</h2>
+<p>From a planning point of view, these results show that NYC needs to pay closer attention to how healthcare facilities line up with where people actually live. Queens keeps growing but doesn’t have the facilities needed to match its population. If nothing changes, that could lead to more stress on hospitals, longer wait times, and fewer available services.</p>
+<p>This also matters for emergency preparedness. During COVID-19, Queens was hit extremely hard early on. While my report doesn’t directly study that connection, it does line up with the fact that Queens already had less hospital capacity per person. A borough with lower per-capita access is naturally less prepared for a major health crisis.</p>
+<p>There are also important limitations to keep in mind. First, the hospital dataset didn’t include urgent cares, clinics, or private medical offices. If those had been included, the access numbers might look different. Second, because ZIP codes weren’t in the dataset, the analysis had to stay at the borough level. That means we lose neighborhood level detail.</p>
+<p>Another limitation is the population estimates themselves. I had to interpolate 2024 and 2025 population numbers using 2020 and 2030 projections. This is a reasonable estimate, but populations don’t always grow in a perfect straight line. Still, the population differences between boroughs are large enough that the general patterns wouldn’t change much either way.</p>
+<p>The analysis also doesn’t include hospital capacity or specialty types. Some hospitals are much larger or offer more specialized services than others. Treating all facilities equally is a limitation, but that’s all the dataset allowed for.</p>
+</section>
+<section id="importance-of-population-adjusted-metrics-for-urban-health-planning" class="level2" data-number="1.8">
+<h2 data-number="1.8" class="anchored" data-anchor-id="importance-of-population-adjusted-metrics-for-urban-health-planning"><span class="header-section-number">1.8</span> Importance of Population-Adjusted Metrics for Urban Health Planning</h2>
+<p>Population adjusted metrics are especially important in large and unequal cities like New York City. Raw counts of healthcare facilities can easily misrepresent access because they do not account for how many people rely on each facility. A borough with many hospitals may still experience overcrowding and long wait times if its population is large, while a borough with fewer hospitals may offer better access if its population is smaller.</p>
+<p>Using population projections for 2024 and 2025 helps ensure that the analysis reflects current conditions rather than outdated census snapshots. NYC’s population has shifted over time, with some boroughs experiencing faster growth than others. By incorporating projected population figures, this analysis better aligns healthcare access measures with present day demand.</p>
+<p>Calculating hospitals per 100,000 residents also allows this study to connect more directly to public health and policy discussions. Health agencies and planners often use per-capita benchmarks when deciding where to allocate resources, expand capacity, or invest in new facilities. Metrics like hospitals per 100,000 residents make it easier to compare regions, identify underserved areas, and justify targeted intervention.</p>
+<p>In the context of this project, population adjusted measures revealed disparities that were not visible when looking only at total hospital counts. Without this adjustment, boroughs like Queens might appear adequately served simply because they have multiple hospitals, even though those facilities must serve far more residents than hospitals in other boroughs. This highlights why population based metrics should be a standard tool in healthcare accessibility analysis.</p>
+</section>
+<section id="conclusion" class="level2" data-number="1.9">
+<h2 data-number="1.9" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">1.9</span> Conclusion:</h2>
+<p>Overall, this analysis demonstrates that healthcare facility availability is not evenly distributed across New York City. Manhattan has the highest per capita availability of hospitals, while Queens and Staten Island have markedly lower access. These disparities have potential implications for emergency response times, preventive care access, and overall health outcomes.</p>
 <p>While this individual report is limited to borough level analysis due to dataset constraints, it establishes a foundational understanding of geographic variation that informs the broader group project. Future work should incorporate:</p>
 <p>Census tract level socioeconomic indicators</p>
 <p>Travel time or distance to provider models</p>
 <p>Facility type granularity (urgent care, community health centers, specialty hospitals)</p>
 <p>Understanding healthcare access requires both macro and micro level perspectives. This report provides the macro level baseline necessary for assessing equity across NYC’s diverse communities.</p>
-<p>Imani Cooper</p>
+<p>Imani Cooper Data Analyst</p>
 
 
 </section>
